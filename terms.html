@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - PyUpgrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: -webkit-linear-gradient(45deg, #34D399, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .prose-dark { color: #d1d5db; }
+        .prose-dark h2 { color: #fff; }
+        .prose-dark h3 { color: #f3f4f6; }
+        .prose-dark a { color: #60a5fa; }
+        .prose-dark strong { color: #f9fafb; }
+        .form-button-as-link {
+            background: none; border: none; padding: 0; font: inherit; cursor: pointer; outline: inherit;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300">
+
+    <header class="container mx-auto px-6 py-4">
+        <div class="flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-white"><span class="text-emerald-400">Py</span>Upgrade</a>
+            <nav class="hidden md:flex items-center">
+                <a href="index.html#risks" class="text-gray-400 hover:text-white px-4 transition">The Risks</a>
+                <a href="index.html#solution" class="text-gray-400 hover:text-white px-4 transition">Our Solution</a>
+                <form action="app.html" method="get" class="inline"><button type="submit" class="form-button-as-link text-gray-400 hover:text-white px-4 transition font-medium">Log In</button></form>
+                <form action="app.html" method="get" class="ml-4 inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition">Get Started</button></form>
+            </nav>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-400 hover:text-white focus:outline-none focus:text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-4">
+             <a href="index.html#risks" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">The Risks</a>
+            <a href="index.html#solution" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">Our Solution</a>
+            <form action="app.html" method="get" class="block"><button type="submit" class="form-button-as-link w-full text-left py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">Log In</button></form>
+            <form action="app.html" method="get" class="block mt-2"><input type="hidden" name="action" value="signup"><button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition text-center">Get Started</button></form>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-20">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl font-black text-white leading-tight">Terms of <span class="gradient-text">Service</span>.</h1>
+            <p class="mt-6 text-lg text-gray-400">Last updated: October 3, 2025</p>
+        </div>
+        
+        <div class="max-w-4xl mx-auto mt-16 prose prose-dark prose-lg">
+            <h2>1. Agreement to Terms</h2>
+            <p>By using our Service, you agree to be bound by these Terms. If you do not agree to these Terms, do not use the Service. We may modify the Terms at any time, in our sole discretion.</p>
+
+            <h2>2. Use of the Service</h2>
+            <p>You may use the Service only if you can form a binding contract with PyUpgrade, and only in compliance with these Terms and all applicable local, state, national, and international laws, rules and regulations.</p>
+            <h3>Accounts</h3>
+            <p>When you create an account with us, you must provide us with information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.</p>
+            
+            <h2>3. User Content</h2>
+            <p>Our Service allows you to connect your source code repositories for analysis. You retain ownership of and responsibility for your source code. We claim no ownership rights over your source code. We will only use your source code to provide the Service to you.</p>
+
+            <h2>4. Termination</h2>
+            <p>We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+            
+            <h2>5. Limitation of Liability</h2>
+            <p>In no event shall PyUpgrade, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.</p>
+
+            <h2>6. Contact Us</h2>
+            <p>If you have any questions about these Terms, please contact us at <a href="mailto:legal@pyupgrade.com">legal@pyupgrade.com</a>.</p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-950/50">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="col-span-2 md:col-span-1"><a href="index.html" class="text-2xl font-bold text-white"><span class="text-emerald-400">Py</span>Upgrade</a><p class="mt-2 text-gray-400 text-sm">Automated Python modernization.</p></div>
+                <div><h4 class="font-semibold text-white tracking-wider">Product</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="index.html#demo" class="text-gray-400 hover:text-white transition">AI Demo</a></li><li><a href="index.html#solution" class="text-gray-400 hover:text-white transition">Features</a></li><li><form action="app.html" method="get" class="inline"><input type="hidden" name="action" value="signup"><button type="submit" class="form-button-as-link text-gray-400 hover:text-white transition">Sign Up</button></form></li></ul></div>
+                <div><h4 class="font-semibold text-white tracking-wider">Company</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="about.html" class="text-gray-400 hover:text-white transition">About</a></li><li><a href="contact.html" class="text-gray-400 hover:text-white transition">Contact</a></li></ul></div>
+                <div><h4 class="font-semibold text-white tracking-wider">Legal</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="privacy.html" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li><li><a href="terms.html" class="text-gray-400 hover:text-white transition">Terms of Service</a></li></ul></div>
+            </div>
+            <div class="mt-12 border-t border-gray-800 pt-6 text-center"><p class="text-sm text-gray-500">&copy; 2025 PyUpgrade. All rights reserved.</p></div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
+

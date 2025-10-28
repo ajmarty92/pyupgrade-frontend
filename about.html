@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About PyUpgrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: -webkit-linear-gradient(45deg, #34D399, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-button-as-link {
+            background: none; border: none; padding: 0; font: inherit; cursor: pointer; outline: inherit;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300">
+
+    <header class="container mx-auto px-6 py-4">
+        <div class="flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-white"><span class="text-emerald-400">Py</span>Upgrade</a>
+            <nav class="hidden md:flex items-center">
+                <a href="index.html#risks" class="text-gray-400 hover:text-white px-4 transition">The Risks</a>
+                <a href="index.html#solution" class="text-gray-400 hover:text-white px-4 transition">Our Solution</a>
+                <form action="app.html" method="get" class="inline"><button type="submit" class="form-button-as-link text-gray-400 hover:text-white px-4 transition font-medium">Log In</button></form>
+                <form action="app.html" method="get" class="ml-4 inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition">Get Started</button></form>
+            </nav>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-400 hover:text-white focus:outline-none focus:text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-4">
+             <a href="index.html#risks" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">The Risks</a>
+            <a href="index.html#solution" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">Our Solution</a>
+            <form action="app.html" method="get" class="block"><button type="submit" class="form-button-as-link w-full text-left py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">Log In</button></form>
+            <form action="app.html" method="get" class="block mt-2"><input type="hidden" name="action" value="signup"><button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition text-center">Get Started</button></form>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-20">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl font-black text-white leading-tight">Our Mission is to Eliminate <span class="gradient-text">Technical Debt</span>.</h1>
+            <p class="mt-6 text-lg text-gray-400">We believe that developers should spend their time building the future, not patching the past.</p>
+        </div>
+        
+        <div class="max-w-4xl mx-auto mt-16 text-left text-gray-300 space-y-6">
+            <p>PyUpgrade was founded on a simple principle: the relentless march of technology should be an opportunity, not a burden. For years, we've seen brilliant engineering teams get bogged down by the weight of legacy systems. The cycle of patching, testing, and dealing with compatibility issues from outdated Python versions drains resources, stifles innovation, and demotivates talented developers.</p>
+            <p>We saw a clear need for an intelligent, automated solution that does more than just identify problems. We wanted to build a platform that accelerates the solution.</p>
+            <p>By harnessing the power of modern AI and building a deep understanding of the Python ecosystem, PyUpgrade provides a clear path forward. We automate the tedious work of assessment and provide actionable, AI-powered recommendations, allowing development teams to focus on what they do best: creating value and pushing the boundaries of what's possible.</p>
+            <p>Our goal is to make software modernization a seamless, continuous, and integrated part of the development lifecycle, ensuring that every codebase is secure, performant, and ready for the future.</p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-950/50">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="col-span-2 md:col-span-1"><a href="index.html" class="text-2xl font-bold text-white"><span class="text-emerald-400">Py</span>Upgrade</a><p class="mt-2 text-gray-400 text-sm">Automated Python modernization.</p></div>
+                <div><h4 class="font-semibold text-white tracking-wider">Product</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="index.html#demo" class="text-gray-400 hover:text-white transition">AI Demo</a></li><li><a href="index.html#solution" class="text-gray-400 hover:text-white transition">Features</a></li><li><form action="app.html" method="get" class="inline"><input type="hidden" name="action" value="signup"><button type="submit" class="form-button-as-link text-gray-400 hover:text-white transition">Sign Up</button></form></li></ul></div>
+                <div><h4 class="font-semibold text-white tracking-wider">Company</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="about.html" class="text-gray-400 hover:text-white transition">About</a></li><li><a href="contact.html" class="text-gray-400 hover:text-white transition">Contact</a></li></ul></div>
+                <div><h4 class="font-semibold text-white tracking-wider">Legal</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="privacy.html" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li><li><a href="terms.html" class="text-gray-400 hover:text-white transition">Terms of Service</a></li></ul></div>
+            </div>
+            <div class="mt-12 border-t border-gray-800 pt-6 text-center"><p class="text-sm text-gray-500">&copy; 2025 PyUpgrade. All rights reserved.</p></div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
+
