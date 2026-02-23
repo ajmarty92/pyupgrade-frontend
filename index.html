@@ -150,7 +150,16 @@
 
     <script>
         document.getElementById('mobile-menu-button').addEventListener('click', function() { document.getElementById('mobile-menu').classList.toggle('hidden'); });
-        const modernizeButton = document.getElementById('modernize-button'), codeInput = document.getElementById('code-input'), resultContainer = document.getElementById('result-container'), codeOutput = document.getElementById('code-output'), buttonText = document.getElementById('button-text'), buttonLoader = document.getElementById('button-loader'), API_URL = 'http://localhost:8000/api/public/modernize-snippet'; 
+
+        const currentHostname = window.location.hostname;
+        const vercelHostname = 'pyupgrade-app.vercel.app';
+        const productionBackendUrl = 'https://pyupgrade-f203f8648dc3.herokuapp.com';
+        const localBackendUrl = 'http://localhost:8000';
+        const isProduction = currentHostname === vercelHostname;
+        const BACKEND_URL = isProduction ? productionBackendUrl : localBackendUrl;
+        const API_URL = `${BACKEND_URL}/api/public/modernize-snippet`;
+
+        const modernizeButton = document.getElementById('modernize-button'), codeInput = document.getElementById('code-input'), resultContainer = document.getElementById('result-container'), codeOutput = document.getElementById('code-output'), buttonText = document.getElementById('button-text'), buttonLoader = document.getElementById('button-loader');
         modernizeButton.addEventListener('click', async () => {
             const snippet = codeInput.value;
             if (!snippet.trim()) { alert('Please paste some code to modernize.'); return; }
