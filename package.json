@@ -1,0 +1,28 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "pyupgrade-frontend",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajmarty92/pyupgrade-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
+  "bugs": {
+    "url": "https://github.com/ajmarty92/pyupgrade-frontend/issues"
+  },
+  "homepage": "https://github.com/ajmarty92/pyupgrade-frontend#readme",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

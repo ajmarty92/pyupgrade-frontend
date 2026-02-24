@@ -148,28 +148,7 @@
         </div>
     </footer>
 
-    <script>
-        document.getElementById('mobile-menu-button').addEventListener('click', function() { document.getElementById('mobile-menu').classList.toggle('hidden'); });
-        const modernizeButton = document.getElementById('modernize-button'), codeInput = document.getElementById('code-input'), resultContainer = document.getElementById('result-container'), codeOutput = document.getElementById('code-output'), buttonText = document.getElementById('button-text'), buttonLoader = document.getElementById('button-loader'), API_URL = 'http://localhost:8000/api/public/modernize-snippet'; 
-        modernizeButton.addEventListener('click', async () => {
-            const snippet = codeInput.value;
-            if (!snippet.trim()) { alert('Please paste some code to modernize.'); return; }
-            modernizeButton.disabled = true; buttonText.textContent = 'Modernizing...'; buttonLoader.classList.remove('hidden'); resultContainer.classList.add('hidden');
-            const outputPre = codeOutput.parentElement;
-            outputPre.classList.remove('bg-red-900/30', 'text-red-300'); outputPre.classList.add('bg-emerald-900/30', 'text-emerald-300');
-            try {
-                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code_snippet: snippet }) });
-                if (!response.ok) { const errorData = await response.json().catch(() => ({ detail: 'An unknown error occurred.' })); throw new Error(errorData.detail || 'The server returned an error.'); }
-                const data = await response.json();
-                codeOutput.textContent = data.modernized_code;
-            } catch (error) {
-                codeOutput.textContent = `Error: ${error.message}`;
-                outputPre.classList.remove('bg-emerald-900/30', 'text-emerald-300'); outputPre.classList.add('bg-red-900/30', 'text-red-300');
-            } finally {
-                modernizeButton.disabled = false; buttonText.textContent = '✨ Modernize with Gemini'; buttonLoader.classList.add('hidden'); resultContainer.classList.remove('hidden');
-            }
-        });
-    </script>
+    <script src="js/landing.js"></script>
 </body>
 </html>
 
