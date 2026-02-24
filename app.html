@@ -13,6 +13,7 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     
     <script type="text/babel">
         // --- FIX: Define BACKEND_URL Globally and Immediately ---
@@ -69,21 +70,65 @@
             const MainAppView = ({ onLogout }) => {
                  // (Logic remains the same)
                 const [appState, setAppState] = useState('repo_selection'); const [scanResult, setScanResult] = useState(null); const [repos, setRepos] = useState([]); const [isLoadingRepos, setIsLoadingRepos] = useState(true); const [error, setError] = useState(null);
+
+                // --- STRATEGIC SUMMARY STATE ---
+                const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false); const [strategicSummary, setStrategicSummary] = useState(''); const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+
                 useEffect(() => { const fr = async () => { setIsLoadingRepos(true); setError(null); try { const r = await fetch(`${BACKEND_URL}/api/repositories`, { credentials: 'include' }); if (!r.ok) { const ed = await r.json(); if (r.status === 403) { throw new Error("Link GitHub account."); } throw new Error(ed.detail || "Failed fetch repos."); } setRepos(await r.json()); } catch (err) { setError(err.message); } finally { setIsLoadingRepos(false); } }; fr(); }, []);
                 const handleScan = async (repoFullName) => { setAppState('scanning'); setError(null); try { const sr = await fetch(`${BACKEND_URL}/api/scan`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_name: repoFullName }), credentials: 'include' }); if (!sr.ok) { const ed = await sr.json(); throw new Error(ed.detail || "Failed scan start."); } const { task_id } = await sr.json(); const pi = setInterval(async () => { try { const ssr = await fetch(`${BACKEND_URL}/api/scan/status/${task_id}`, { credentials: 'include' }); if (!ssr.ok) { clearInterval(pi); throw new Error("Failed scan status."); } const sd = await ssr.json(); if (sd.status === 'SUCCESS') { clearInterval(pi); setScanResult(sd.result); setAppState('report'); } else if (sd.status === 'FAILURE') { clearInterval(pi); throw new Error(sd.detail || "Scan failed."); } } catch (err) { clearInterval(pi); setError(err.message); setAppState('repo_selection'); } }, 3000); } catch (err) { setError(err.message); setAppState('repo_selection'); } };
                 const handleNewScan = () => { setScanResult(null); setAppState('repo_selection'); };
+
+                const handleGenerateStrategicSummary = async () => {
+                    setIsLoadingSummary(true);
+                    setIsSummaryModalOpen(true);
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/api/strategic-summary`, { credentials: 'include' });
+                        if (!response.ok) throw new Error("Failed to generate summary.");
+                        const data = await response.json();
+                        setStrategicSummary(DOMPurify.sanitize(data.summary));
+                    } catch (err) {
+                        setStrategicSummary(`Error: ${err.message}`);
+                    } finally {
+                        setIsLoadingSummary(false);
+                    }
+                };
                 const handleGenerateFix = async (issueIndex) => { const i = scanResult.syntaxIssues[issueIndex]; const ui = [...scanResult.syntaxIssues]; ui[issueIndex] = { ...i, isLoadingSuggestion: true }; setScanResult({ ...scanResult, syntaxIssues: ui }); try { const r = await fetch(`${BACKEND_URL}/api/generate-fix`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code_snippet: i.code_snippet, issue_type: i.type, file_path: i.file, line: i.line }), credentials: 'include' }); if (!r.ok) { const ed = await r.json(); throw new Error(ed.detail || "AI fail."); } const d = await r.json(); const fi = [...scanResult.syntaxIssues]; fi[issueIndex] = { ...i, suggestion: d.suggestion, isLoadingSuggestion: false }; setScanResult({ ...scanResult, syntaxIssues: fi }); } catch (err) { const fi = [...scanResult.syntaxIssues]; fi[issueIndex] = { ...i, suggestion: `Error: ${err.message}`, isLoadingSuggestion: false }; setScanResult({ ...scanResult, syntaxIssues: fi }); } };
-                const renderMainContent = () => { if (error) { return <div className="fc items-center justify-center h-full tc"><ServerCrash className="w-12 h-12 text-red-400" /><h1 className="t2xl fb text-white mt-6">Error</h1><p className="mt-1 text-gray-400 max-w-md">{error}</p></div>; } switch (appState) { case 'repo_selection': return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} />; case 'scanning': return <ScanningView />; case 'report': return <ReportView result={scanResult} onNewScan={handleNewScan} onGenerateFix={handleGenerateFix} />; default: return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} />; } };
-                return <div className="py-8 h-full flex flex-col"><header className="flex justify-between items-center flex-shrink-0"><h1 className="t2xl fb text-white"><span className="text-emerald-400">Py</span>Upgrade</h1><button onClick={onLogout} className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><LogOut className="w-4 h-4 mr-2" />Logout</button></header><main className="flex-grow mt-4 overflow-y-auto">{renderMainContent()}</main></div>;
+                const renderMainContent = () => { if (error) { return <div className="fc items-center justify-center h-full tc"><ServerCrash className="w-12 h-12 text-red-400" /><h1 className="t2xl fb text-white mt-6">Error</h1><p className="mt-1 text-gray-400 max-w-md">{error}</p></div>; } switch (appState) { case 'repo_selection': return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} onGenerateSummary={handleGenerateStrategicSummary} />; case 'scanning': return <ScanningView />; case 'report': return <ReportView result={scanResult} onNewScan={handleNewScan} onGenerateFix={handleGenerateFix} />; default: return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} onGenerateSummary={handleGenerateStrategicSummary} />; } };
+                return (
+                    <div className="py-8 h-full flex flex-col">
+                        <header className="flex justify-between items-center flex-shrink-0"><h1 className="t2xl fb text-white"><span className="text-emerald-400">Py</span>Upgrade</h1><button onClick={onLogout} className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><LogOut className="w-4 h-4 mr-2" />Logout</button></header>
+                        <main className="flex-grow mt-4 overflow-y-auto">{renderMainContent()}</main>
+                        {isSummaryModalOpen && (
+                            <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
+                                <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full border border-gray-700">
+                                    <h2 className="text-xl font-bold text-white mb-4">Strategic Technical Debt Summary</h2>
+                                    {isLoadingSummary ? <Loader2 className="animate-spin text-emerald-400 w-8 h-8" /> : <div className="prose prose-invert max-w-none text-gray-300" dangerouslySetInnerHTML={{ __html: strategicSummary }} />}
+                                    <button onClick={() => setIsSummaryModalOpen(false)} className="mt-4 bg-gray-600 hover:bg-gray-500 text-white p-2 rounded transition-colors">Close</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
             };
 
-            const RepoSelectionView = ({ repos, isLoading, onScan }) => {
+            const RepoSelectionView = ({ repos, isLoading, onScan, onGenerateSummary }) => {
                  // (Logic remains the same)
                 const [selectedRepo, setSelectedRepo] = useState(null);
                 useEffect(() => { if (repos && repos.length > 0 && !selectedRepo) { setSelectedRepo(repos[0].full_name); } }, [repos, selectedRepo]);
                 if (isLoading) { return <div className="fc items-center justify-center h-full tc"><Loader2 className="w-12 h-12 text-emerald-400 animate-spin" /><h1 className="t2xl fb text-white mt-6">Fetching...</h1></div>; }
                 if (repos.length === 0) { return <div className="fc items-center justify-center h-full tc"><FileCode className="w-12 h-12 text-gray-500" /><h1 className="t2xl fb text-white mt-6">No Python Repos Found</h1><p className="mt-1 text-gray-400 max-w-md">No Python repos in GitHub.</p></div>; }
-                return <div className="max-w-4xl mx-auto"> <h1 className="t3xl fb text-white">Select Repo</h1><p className="mt-2 text-gray-400">Choose repo to scan.</p><div className="mt-8 space-y-4 max-h-[60vh] overflow-y-auto pr-2">{repos.map(repo => ( <div key={repo.id} onClick={() => setSelectedRepo(repo.full_name)} className={`bg-gray-800/50 border ${selectedRepo === repo.full_name ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-gray-700'} p-4 rounded-lg cursor-pointer transition-all hover:border-emerald-600`}><div className="flex items-center"><input type="radio" name="repo-selection" checked={selectedRepo === repo.full_name} readOnly className="w-4 h-4 text-emerald-600 bg-gray-700 border-gray-600"/><div className="ml-4 flex-grow"><p className="font-semibold text-white flex items-center">{repo.owner.login} / <span className="font-bold">{repo.name}</span>{repo.private && <Lock className="w-3 h-3 ml-2 text-gray-400" />}</p><p className="text-sm text-gray-400">{repo.description}</p></div></div></div>))}</div><div className="mt-8 text-right"><button onClick={() => onScan(selectedRepo)} disabled={!selectedRepo} className="bg-emerald-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors disabled:bg-gray-600 flex items-center ml-auto">Scan Repo <ChevronRight className="w-5 h-5 ml-2" /></button></div></div>;
+                return (
+                    <div className="max-w-4xl mx-auto">
+                        {/* --- NEW STRATEGIC INSIGHTS SECTION --- */}
+                        <div className="bg-gray-800/50 border border-gray-700 p-6 rounded-xl mb-8">
+                            <h2 className="text-xl font-bold text-white flex items-center"><Sparkles className="w-5 h-5 mr-2 text-emerald-400"/> Strategic Insights</h2>
+                            <p className="text-gray-400 mt-2">Analyze all your past scan reports to get a high-level executive summary of your organization's technical debt.</p>
+                            <button onClick={onGenerateSummary} className="mt-4 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white font-semibold px-4 py-2 rounded-lg">Generate Executive Summary</button>
+                        </div>
+
+                        <h1 className="t3xl fb text-white">Select Repo</h1><p className="mt-2 text-gray-400">Choose repo to scan.</p><div className="mt-8 space-y-4 max-h-[60vh] overflow-y-auto pr-2">{repos.map(repo => ( <div key={repo.id} onClick={() => setSelectedRepo(repo.full_name)} className={`bg-gray-800/50 border ${selectedRepo === repo.full_name ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-gray-700'} p-4 rounded-lg cursor-pointer transition-all hover:border-emerald-600`}><div className="flex items-center"><input type="radio" name="repo-selection" checked={selectedRepo === repo.full_name} readOnly className="w-4 h-4 text-emerald-600 bg-gray-700 border-gray-600"/><div className="ml-4 flex-grow"><p className="font-semibold text-white flex items-center">{repo.owner.login} / <span className="font-bold">{repo.name}</span>{repo.private && <Lock className="w-3 h-3 ml-2 text-gray-400" />}</p><p className="text-sm text-gray-400">{repo.description}</p></div></div></div>))}</div><div className="mt-8 text-right"><button onClick={() => onScan(selectedRepo)} disabled={!selectedRepo} className="bg-emerald-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors disabled:bg-gray-600 flex items-center ml-auto">Scan Repo <ChevronRight className="w-5 h-5 ml-2" /></button></div>
+                    </div>
+                );
             };
 
             const ScanningView = () => ( <div className="fc items-center justify-center h-full tc"><Loader2 className="w-16 h-16 text-emerald-400 animate-spin" /><h1 className="t3xl fb text-white mt-8">Scanning...</h1><p className="mt-2 text-gray-400 max-w-md">Scan started. We'll update when ready.</p></div> );
