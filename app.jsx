@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Github, Lock, ChevronRight, Loader2, Mail, LogOut, FileCode, ServerCrash, CheckCircle2, AlertTriangle, Sparkles, Bot, TestTube2, GitPullRequest } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 const BACKEND_URL = 'http://localhost:8000';
 
@@ -76,7 +77,7 @@ const MainAppView = ({ onLogout }) => {
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
                     <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full border border-gray-700">
                         <h2 className="text-xl font-bold text-white mb-4">Strategic Technical Debt Summary</h2>
-                        {isLoadingSummary ? <Loader2 className="animate-spin" /> : <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: strategicSummary }} />}
+                        {isLoadingSummary ? <Loader2 className="animate-spin" /> : <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(strategicSummary) }} />}
                         <button onClick={() => setIsSummaryModalOpen(false)} className="mt-4 bg-gray-600 p-2 rounded">Close</button>
                     </div>
                 </div>
