@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Github, Lock, ChevronRight, Loader2, Mail, LogOut, FileCode, ServerCrash, CheckCircle2, AlertTriangle, Sparkles, Bot, TestTube2, GitPullRequest } from 'lucide-react';
 
+// NOTE: In the deployed app.html, BACKEND_URL is determined by config.js.
+// This constant is here for local reference/compilation if needed.
 const BACKEND_URL = 'http://localhost:8000';
 
 // ... (SVG components are unchanged)

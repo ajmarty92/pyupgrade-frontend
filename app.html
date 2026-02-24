@@ -13,17 +13,11 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="config.js"></script>
     
     <script type="text/babel">
         // --- FIX: Define BACKEND_URL Globally and Immediately ---
-        const currentHostname = window.location.hostname;
-        // IMPORTANT: Ensure this matches your Vercel domain exactly
-        const vercelHostname = 'pyupgrade-app.vercel.app'; 
-        // IMPORTANT: Ensure this matches your Heroku domain exactly
-        const productionBackendUrl = 'https://pyupgrade-f203f8648dc3.herokuapp.com'; 
-        const localBackendUrl = 'http://localhost:8000';
-        const isProduction = currentHostname === vercelHostname;
-        const BACKEND_URL = isProduction ? productionBackendUrl : localBackendUrl;
+        const BACKEND_URL = window.getBackendUrl();
         
         // Log the determined URL for debugging
         console.log("Determined Backend URL:", BACKEND_URL);
