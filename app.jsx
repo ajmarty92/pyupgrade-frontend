@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Github, Lock, ChevronRight, Loader2, Mail, LogOut, FileCode, ServerCrash, CheckCircle2, AlertTriangle, Sparkles, Bot, TestTube2, GitPullRequest } from 'lucide-react';
+import { fetchStrategicSummary } from './js/api';
 
 const BACKEND_URL = 'http://localhost:8000';
 
@@ -35,10 +36,8 @@ const MainAppView = ({ onLogout }) => {
         setIsLoadingSummary(true);
         setIsSummaryModalOpen(true);
         try {
-            const response = await fetch(`${BACKEND_URL}/api/strategic-summary`, { credentials: 'include' });
-            if (!response.ok) throw new Error("Failed to generate summary.");
-            const data = await response.json();
-            setStrategicSummary(data.summary);
+            const summary = await fetchStrategicSummary(BACKEND_URL);
+            setStrategicSummary(summary);
         } catch (err) {
             setStrategicSummary(`Error: ${err.message}`);
         } finally {
