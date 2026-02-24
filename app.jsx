@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Github, Lock, ChevronRight, Loader2, Mail, LogOut, FileCode, ServerCrash, CheckCircle2, AlertTriangle, Sparkles, Bot, TestTube2, GitPullRequest } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:8000';
+const currentHostname = window.location.hostname;
+const vercelHostname = 'pyupgrade-app.vercel.app';
+const productionBackendUrl = 'https://pyupgrade-f203f8648dc3.herokuapp.com';
+const localBackendUrl = 'http://localhost:8000';
+const isProduction = currentHostname === vercelHostname;
+const BACKEND_URL = isProduction ? productionBackendUrl : localBackendUrl;
 
 // ... (SVG components are unchanged)
 
