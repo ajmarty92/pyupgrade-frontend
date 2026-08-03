@@ -54,34 +54,13 @@
 </head>
 <body class="bg-gray-900 text-gray-300">
 
-    <header class="container mx-auto px-6 py-4">
-        <div class="flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-white"><span class="text-emerald-400">Py</span>Upgrade</a>
-            <nav class="hidden md:flex items-center">
-                <a href="#risks" class="text-gray-400 hover:text-white px-4 transition">The Risks</a>
-                <a href="#solution" class="text-gray-400 hover:text-white px-4 transition">Our Solution</a>
-                <form action="app.html" method="get" class="inline"><button type="submit" class="form-button-as-link text-gray-400 hover:text-white px-4 transition font-medium">Log In</button></form>
-                <form action="app.html" method="get" class="ml-4 inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition">Get Started</button></form>
-            </nav>
-            <div class="md:hidden">
-                <button id="mobile-menu-button" class="text-gray-400 hover:text-white focus:outline-none focus:text-white">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden mt-4">
-            <a href="#risks" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">The Risks</a>
-            <a href="#solution" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">Our Solution</a>
-            <form action="app.html" method="get" class="block"><button type="submit" class="form-button-as-link w-full text-left py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 rounded">Log In</button></form>
-            <form action="app.html" method="get" class="block mt-2"><input type="hidden" name="action" value="signup"><button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition text-center">Get Started</button></form>
-        </div>
-    </header>
+    <div id="site-header"></div>
 
     <main class="container mx-auto px-6 py-24 text-center">
         <div class="max-w-4xl mx-auto">
             <h1 class="text-5xl md:text-7xl font-black text-white leading-tight">Stop Losing Millions to <span class="gradient-text">Outdated Python</span>.</h1>
             <p class="mt-6 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">Technical debt from legacy Python versions isn't just a nuisance—it's a direct threat to your security, performance, and bottom line. We make modernization seamless.</p>
-            <div class="mt-10"><form action="app.html" method="get" class="inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 text-white font-bold py-4 px-8 rounded-lg text-lg hover:bg-emerald-600 transition glow-effect">Start Your Free Scan</button></form></div>
+            <div class="mt-10"><form action="app.html" method="get" class="inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 text-white font-bold py-4 px-8 rounded-lg text-lg hover:bg-emerald-600 active:bg-emerald-700 transition glow-effect focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Start Your Free Scan</button></form></div>
         </div>
     </main>
 
@@ -111,9 +90,9 @@
         <div class="container mx-auto px-6">
             <div class="text-center mb-12"><h2 class="text-4xl font-bold text-white">See the <span class="gradient-text">AI in Action</span></h2><p class="mt-2 text-gray-400 max-w-2xl mx-auto">Paste a snippet of outdated Python code to see it modernized instantly by the Gemini API.</p></div>
             <div class="max-w-2xl mx-auto bg-gray-800/60 border border-gray-700 rounded-xl p-8">
-                <div><label for="code-input" class="block text-sm font-medium text-gray-300">Your Outdated Code:</label><textarea id="code-input" rows="5" class="mt-1 block w-full bg-gray-900/70 border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-gray-200 font-mono" placeholder="print 'Hello, World!'"></textarea></div>
+                <div><label for="code-input" class="block text-sm font-medium text-gray-300">Your Outdated Code:</label><textarea id="code-input" rows="5" class="mt-1 block w-full bg-gray-900/70 border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-gray-200 font-mono" placeholder="print 'Hello, World!'"></textarea><p id="input-error" class="mt-2 text-sm text-red-400 hidden" role="alert"></p></div>
                 <div class="mt-4 text-center">
-                    <button id="modernize-button" class="bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-emerald-600 transition disabled:bg-gray-500 flex items-center justify-center mx-auto">
+                    <button id="modernize-button" class="bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-emerald-600 active:bg-emerald-700 transition disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center mx-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500">
                          <span id="button-text">✨ Modernize with Gemini</span>
                          <svg id="button-loader" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
@@ -131,25 +110,15 @@
              <h2 class="text-4xl font-bold text-white">Ready to Secure Your Future?</h2>
              <p class="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">Don't wait for a security breach or critical failure. Let's build a plan to modernize your Python stack today.</p>
             <div class="mt-8">
-                 <form action="app.html" method="get" class="inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 text-white font-bold py-4 px-8 rounded-lg text-lg hover:bg-emerald-600 transition glow-effect">Start Your Free Scan</button></form>
+                 <form action="app.html" method="get" class="inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 text-white font-bold py-4 px-8 rounded-lg text-lg hover:bg-emerald-600 active:bg-emerald-700 transition glow-effect focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Start Your Free Scan</button></form>
             </div>
         </div>
     </section>
     
-    <footer class="bg-gray-950/50">
-        <div class="container mx-auto px-6 py-12">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div class="col-span-2 md:col-span-1"><a href="index.html" class="text-2xl font-bold text-white"><span class="text-emerald-400">Py</span>Upgrade</a><p class="mt-2 text-gray-400 text-sm">Automated Python modernization.</p></div>
-                <div><h4 class="font-semibold text-white tracking-wider">Product</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="#demo" class="text-gray-400 hover:text-white transition">AI Demo</a></li><li><a href="#solution" class="text-gray-400 hover:text-white transition">Features</a></li><li><form action="app.html" method="get" class="inline"><input type="hidden" name="action" value="signup"><button type="submit" class="form-button-as-link text-gray-400 hover:text-white transition">Sign Up</button></form></li></ul></div>
-                <div><h4 class="font-semibold text-white tracking-wider">Company</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="about.html" class="text-gray-400 hover:text-white transition">About</a></li><li><a href="contact.html" class="text-gray-400 hover:text-white transition">Contact</a></li></ul></div>
-                <div><h4 class="font-semibold text-white tracking-wider">Legal</h4><ul class="mt-4 space-y-2 text-sm"><li><a href="privacy.html" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li><li><a href="terms.html" class="text-gray-400 hover:text-white transition">Terms of Service</a></li></ul></div>
-            </div>
-            <div class="mt-12 border-t border-gray-800 pt-6 text-center"><p class="text-sm text-gray-500">&copy; 2025 PyUpgrade. All rights reserved.</p></div>
-        </div>
-    </footer>
+    <div id="site-footer"></div>
 
+    <script src="js/site-chrome.js"></script>
     <script>
-        document.getElementById('mobile-menu-button').addEventListener('click', function() { document.getElementById('mobile-menu').classList.toggle('hidden'); });
         // Same hostname-based backend selection as app.html: only bare localhost/127.0.0.1
         // uses the local API, any real domain uses production. A hardcoded localhost URL
         // here means this demo silently fails for every real visitor once deployed.
@@ -158,10 +127,12 @@
         // old (now dead) Heroku URL. Replace with the real https://<app>.fly.dev URL
         // once the Fly.io deploy is live.
         const BACKEND_URL = isLocalHost ? 'http://localhost:8000' : 'https://pyupgrade-f203f8648dc3.herokuapp.com';
-        const modernizeButton = document.getElementById('modernize-button'), codeInput = document.getElementById('code-input'), resultContainer = document.getElementById('result-container'), codeOutput = document.getElementById('code-output'), buttonText = document.getElementById('button-text'), buttonLoader = document.getElementById('button-loader'), API_URL = `${BACKEND_URL}/api/public/modernize-snippet`;
+        const modernizeButton = document.getElementById('modernize-button'), codeInput = document.getElementById('code-input'), inputError = document.getElementById('input-error'), resultContainer = document.getElementById('result-container'), codeOutput = document.getElementById('code-output'), buttonText = document.getElementById('button-text'), buttonLoader = document.getElementById('button-loader'), API_URL = `${BACKEND_URL}/api/public/modernize-snippet`;
+        codeInput.addEventListener('input', () => { inputError.classList.add('hidden'); });
         modernizeButton.addEventListener('click', async () => {
             const snippet = codeInput.value;
-            if (!snippet.trim()) { alert('Please paste some code to modernize.'); return; }
+            if (!snippet.trim()) { inputError.textContent = 'Please paste some code to modernize.'; inputError.classList.remove('hidden'); codeInput.focus(); return; }
+            inputError.classList.add('hidden');
             modernizeButton.disabled = true; buttonText.textContent = 'Modernizing...'; buttonLoader.classList.remove('hidden'); resultContainer.classList.add('hidden');
             const outputPre = codeOutput.parentElement;
             outputPre.classList.remove('bg-red-900/30', 'text-red-300'); outputPre.classList.add('bg-emerald-900/30', 'text-emerald-300');
