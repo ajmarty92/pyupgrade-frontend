@@ -1,0 +1,22 @@
+<header class="container mx-auto px-6 py-4">
+    <div class="flex justify-between items-center">
+        <a href="index.html" class="text-2xl font-bold text-white rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"><span class="text-emerald-400">Py</span>Upgrade</a>
+        <nav class="hidden md:flex items-center">
+            <a href="index.html#risks" class="text-gray-400 hover:text-white active:text-gray-200 px-4 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">The Risks</a>
+            <a href="index.html#solution" class="text-gray-400 hover:text-white active:text-gray-200 px-4 transition rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Our Solution</a>
+            <form action="app.html" method="get" class="inline"><button type="submit" class="form-button-as-link text-gray-400 hover:text-white active:text-gray-200 px-4 transition font-medium rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Log In</button></form>
+            <form action="app.html" method="get" class="ml-4 inline"><input type="hidden" name="action" value="signup"><button type="submit" class="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Get Started</button></form>
+        </nav>
+        <div class="md:hidden">
+            <button id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-menu" class="text-gray-400 hover:text-white active:text-gray-200 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+        </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden mt-4">
+        <a href="index.html#risks" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 active:bg-gray-600 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">The Risks</a>
+        <a href="index.html#solution" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 active:bg-gray-600 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Our Solution</a>
+        <form action="app.html" method="get" class="block"><button type="submit" class="form-button-as-link w-full text-left py-2 px-4 text-sm text-gray-300 hover:bg-gray-700 active:bg-gray-600 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Log In</button></form>
+        <form action="app.html" method="get" class="block mt-2"><input type="hidden" name="action" value="signup"><button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Get Started</button></form>
+    </div>
+</header>
