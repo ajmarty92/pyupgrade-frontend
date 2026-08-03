@@ -15,15 +15,17 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script type="text/babel">
-        // --- FIX: Define BACKEND_URL Globally and Immediately ---
+        // --- Define BACKEND_URL Globally and Immediately ---
+        // Any real hostname is treated as production; only bare localhost/127.0.0.1
+        // falls back to the local API. An exact-match allowlist here previously broke
+        // the app on any domain other than one specific Vercel hostname (a different
+        // custom domain or preview deployment would silently try to call localhost).
         const currentHostname = window.location.hostname;
-        // IMPORTANT: Ensure this matches your Vercel domain exactly
-        const vercelHostname = 'pyupgrade-app.vercel.app'; 
+        const isLocal = currentHostname === 'localhost' || currentHostname === '127.0.0.1';
         // IMPORTANT: Ensure this matches your Heroku domain exactly
-        const productionBackendUrl = 'https://pyupgrade-f203f8648dc3.herokuapp.com'; 
+        const productionBackendUrl = 'https://pyupgrade-f203f8648dc3.herokuapp.com';
         const localBackendUrl = 'http://localhost:8000';
-        const isProduction = currentHostname === vercelHostname;
-        const BACKEND_URL = isProduction ? productionBackendUrl : localBackendUrl;
+        const BACKEND_URL = isLocal ? localBackendUrl : productionBackendUrl;
         
         // Log the determined URL for debugging
         console.log("Determined Backend URL:", BACKEND_URL);
@@ -31,7 +33,7 @@
         // --- Wait for the window to load before running React code ---
         window.onload = function() {
             
-            const { useState, useEffect } = React;
+            const { useState, useEffect, useRef } = React;
 
             // --- INLINE SVG ICON COMPONENTS ---
             const Icon = ({ children, className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>;
@@ -69,8 +71,12 @@
             const MainAppView = ({ onLogout }) => {
                  // (Logic remains the same)
                 const [appState, setAppState] = useState('repo_selection'); const [scanResult, setScanResult] = useState(null); const [repos, setRepos] = useState([]); const [isLoadingRepos, setIsLoadingRepos] = useState(true); const [error, setError] = useState(null);
+                const pollRef = useRef(null);
+                // Stops the scan-status poll if this view unmounts mid-scan (e.g. logout)
+                // instead of leaking a setInterval that keeps firing after the fact.
+                useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
                 useEffect(() => { const fr = async () => { setIsLoadingRepos(true); setError(null); try { const r = await fetch(`${BACKEND_URL}/api/repositories`, { credentials: 'include' }); if (!r.ok) { const ed = await r.json(); if (r.status === 403) { throw new Error("Link GitHub account."); } throw new Error(ed.detail || "Failed fetch repos."); } setRepos(await r.json()); } catch (err) { setError(err.message); } finally { setIsLoadingRepos(false); } }; fr(); }, []);
-                const handleScan = async (repoFullName) => { setAppState('scanning'); setError(null); try { const sr = await fetch(`${BACKEND_URL}/api/scan`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_name: repoFullName }), credentials: 'include' }); if (!sr.ok) { const ed = await sr.json(); throw new Error(ed.detail || "Failed scan start."); } const { task_id } = await sr.json(); const pi = setInterval(async () => { try { const ssr = await fetch(`${BACKEND_URL}/api/scan/status/${task_id}`, { credentials: 'include' }); if (!ssr.ok) { clearInterval(pi); throw new Error("Failed scan status."); } const sd = await ssr.json(); if (sd.status === 'SUCCESS') { clearInterval(pi); setScanResult(sd.result); setAppState('report'); } else if (sd.status === 'FAILURE') { clearInterval(pi); throw new Error(sd.detail || "Scan failed."); } } catch (err) { clearInterval(pi); setError(err.message); setAppState('repo_selection'); } }, 3000); } catch (err) { setError(err.message); setAppState('repo_selection'); } };
+                const handleScan = async (repoFullName) => { setAppState('scanning'); setError(null); try { const sr = await fetch(`${BACKEND_URL}/api/scan`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_name: repoFullName }), credentials: 'include' }); if (!sr.ok) { const ed = await sr.json(); throw new Error(ed.detail || "Failed scan start."); } const { task_id } = await sr.json(); pollRef.current = setInterval(async () => { try { const ssr = await fetch(`${BACKEND_URL}/api/scan/status/${task_id}`, { credentials: 'include' }); if (!ssr.ok) { clearInterval(pollRef.current); throw new Error("Failed scan status."); } const sd = await ssr.json(); if (sd.status === 'SUCCESS') { clearInterval(pollRef.current); setScanResult(sd.result); setAppState('report'); } else if (sd.status === 'FAILURE') { clearInterval(pollRef.current); throw new Error(sd.detail || "Scan failed."); } } catch (err) { clearInterval(pollRef.current); setError(err.message); setAppState('repo_selection'); } }, 3000); } catch (err) { setError(err.message); setAppState('repo_selection'); } };
                 const handleNewScan = () => { setScanResult(null); setAppState('repo_selection'); };
                 const handleGenerateFix = async (issueIndex) => { const i = scanResult.syntaxIssues[issueIndex]; const ui = [...scanResult.syntaxIssues]; ui[issueIndex] = { ...i, isLoadingSuggestion: true }; setScanResult({ ...scanResult, syntaxIssues: ui }); try { const r = await fetch(`${BACKEND_URL}/api/generate-fix`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code_snippet: i.code_snippet, issue_type: i.type, file_path: i.file, line: i.line }), credentials: 'include' }); if (!r.ok) { const ed = await r.json(); throw new Error(ed.detail || "AI fail."); } const d = await r.json(); const fi = [...scanResult.syntaxIssues]; fi[issueIndex] = { ...i, suggestion: d.suggestion, isLoadingSuggestion: false }; setScanResult({ ...scanResult, syntaxIssues: fi }); } catch (err) { const fi = [...scanResult.syntaxIssues]; fi[issueIndex] = { ...i, suggestion: `Error: ${err.message}`, isLoadingSuggestion: false }; setScanResult({ ...scanResult, syntaxIssues: fi }); } };
                 const renderMainContent = () => { if (error) { return <div className="fc items-center justify-center h-full tc"><ServerCrash className="w-12 h-12 text-red-400" /><h1 className="t2xl fb text-white mt-6">Error</h1><p className="mt-1 text-gray-400 max-w-md">{error}</p></div>; } switch (appState) { case 'repo_selection': return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} />; case 'scanning': return <ScanningView />; case 'report': return <ReportView result={scanResult} onNewScan={handleNewScan} onGenerateFix={handleGenerateFix} />; default: return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} />; } };
