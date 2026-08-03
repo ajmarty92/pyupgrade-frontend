@@ -22,7 +22,9 @@
         // custom domain or preview deployment would silently try to call localhost).
         const currentHostname = window.location.hostname;
         const isLocal = currentHostname === 'localhost' || currentHostname === '127.0.0.1';
-        // IMPORTANT: Ensure this matches your Heroku domain exactly
+        // STALE: the backend moved from Heroku to Fly.io -- this still points at the
+        // old (now dead) Heroku URL. Replace with the real https://<app>.fly.dev URL
+        // once the Fly.io deploy is live.
         const productionBackendUrl = 'https://pyupgrade-f203f8648dc3.herokuapp.com';
         const localBackendUrl = 'http://localhost:8000';
         const BACKEND_URL = isLocal ? localBackendUrl : productionBackendUrl;

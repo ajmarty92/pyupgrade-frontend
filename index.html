@@ -154,6 +154,9 @@
         // uses the local API, any real domain uses production. A hardcoded localhost URL
         // here means this demo silently fails for every real visitor once deployed.
         const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        // STALE: the backend moved from Heroku to Fly.io -- this still points at the
+        // old (now dead) Heroku URL. Replace with the real https://<app>.fly.dev URL
+        // once the Fly.io deploy is live.
         const BACKEND_URL = isLocalHost ? 'http://localhost:8000' : 'https://pyupgrade-f203f8648dc3.herokuapp.com';
         const modernizeButton = document.getElementById('modernize-button'), codeInput = document.getElementById('code-input'), resultContainer = document.getElementById('result-container'), codeOutput = document.getElementById('code-output'), buttonText = document.getElementById('button-text'), buttonLoader = document.getElementById('button-loader'), API_URL = `${BACKEND_URL}/api/public/modernize-snippet`;
         modernizeButton.addEventListener('click', async () => {
