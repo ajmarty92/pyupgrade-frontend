@@ -51,6 +51,52 @@
             const Bot = ({ className }) => <Icon className={className}><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></Icon>;
             const GoogleGLogo = () => ( <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 mr-3"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg> );
 
+            // --- Safe markdown rendering for AI-generated text ---
+            // The strategic summary is untrusted model output (and can transitively
+            // include repo names/descriptions from scanned GitHub repos), so this
+            // builds React elements directly instead of using dangerouslySetInnerHTML
+            // -- there is no HTML string ever parsed or injected here.
+            const renderInlineMarkdown = (text, keyPrefix) => {
+                const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+                return parts.map((part, i) => (
+                    part.startsWith('**') && part.endsWith('**')
+                        ? <strong key={`${keyPrefix}-b-${i}`}>{part.slice(2, -2)}</strong>
+                        : <React.Fragment key={`${keyPrefix}-t-${i}`}>{part}</React.Fragment>
+                ));
+            };
+
+            const renderMarkdown = (markdown) => {
+                if (!markdown) return null;
+                const blocks = [];
+                let listItems = [];
+                const flushList = (key) => {
+                    if (listItems.length) {
+                        blocks.push(<ul key={`ul-${key}`} className="list-disc list-inside space-y-1 my-2">{listItems}</ul>);
+                        listItems = [];
+                    }
+                };
+                markdown.split('\n').forEach((line, idx) => {
+                    const trimmed = line.trim();
+                    if (!trimmed) { flushList(idx); return; }
+                    const headerMatch = trimmed.match(/^(#{1,4})\s+(.*)$/);
+                    if (headerMatch) {
+                        flushList(idx);
+                        const Tag = headerMatch[1].length <= 2 ? 'h3' : 'h4';
+                        blocks.push(<Tag key={`h-${idx}`} className="text-lg font-semibold text-white mt-4 mb-2">{renderInlineMarkdown(headerMatch[2], `h-${idx}`)}</Tag>);
+                        return;
+                    }
+                    const bulletMatch = trimmed.match(/^[-*]\s+(.*)$/);
+                    if (bulletMatch) {
+                        listItems.push(<li key={`li-${idx}`} className="text-gray-300">{renderInlineMarkdown(bulletMatch[1], `li-${idx}`)}</li>);
+                        return;
+                    }
+                    flushList(idx);
+                    blocks.push(<p key={`p-${idx}`} className="text-gray-300 mb-2">{renderInlineMarkdown(trimmed, `p-${idx}`)}</p>);
+                });
+                flushList('end');
+                return blocks;
+            };
+
             // --- React Components (Using the globally defined BACKEND_URL) ---
             
             function App() {
@@ -71,6 +117,7 @@
             const MainAppView = ({ onLogout }) => {
                  // (Logic remains the same)
                 const [appState, setAppState] = useState('repo_selection'); const [scanResult, setScanResult] = useState(null); const [repos, setRepos] = useState([]); const [isLoadingRepos, setIsLoadingRepos] = useState(true); const [error, setError] = useState(null);
+                const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false); const [strategicSummary, setStrategicSummary] = useState(''); const [isLoadingSummary, setIsLoadingSummary] = useState(false); const [summaryError, setSummaryError] = useState('');
                 const pollRef = useRef(null);
                 // Stops the scan-status poll if this view unmounts mid-scan (e.g. logout)
                 // instead of leaking a setInterval that keeps firing after the fact.
@@ -78,18 +125,50 @@
                 useEffect(() => { const fr = async () => { setIsLoadingRepos(true); setError(null); try { const r = await fetch(`${BACKEND_URL}/api/repositories`, { credentials: 'include' }); if (!r.ok) { const ed = await r.json(); if (r.status === 403) { throw new Error("Link GitHub account."); } throw new Error(ed.detail || "Failed fetch repos."); } setRepos(await r.json()); } catch (err) { setError(err.message); } finally { setIsLoadingRepos(false); } }; fr(); }, []);
                 const handleScan = async (repoFullName) => { setAppState('scanning'); setError(null); try { const sr = await fetch(`${BACKEND_URL}/api/scan`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ repo_name: repoFullName }), credentials: 'include' }); if (!sr.ok) { const ed = await sr.json(); throw new Error(ed.detail || "Failed scan start."); } const { task_id } = await sr.json(); pollRef.current = setInterval(async () => { try { const ssr = await fetch(`${BACKEND_URL}/api/scan/status/${task_id}`, { credentials: 'include' }); if (!ssr.ok) { clearInterval(pollRef.current); throw new Error("Failed scan status."); } const sd = await ssr.json(); if (sd.status === 'SUCCESS') { clearInterval(pollRef.current); setScanResult(sd.result); setAppState('report'); } else if (sd.status === 'FAILURE') { clearInterval(pollRef.current); throw new Error(sd.detail || "Scan failed."); } } catch (err) { clearInterval(pollRef.current); setError(err.message); setAppState('repo_selection'); } }, 3000); } catch (err) { setError(err.message); setAppState('repo_selection'); } };
                 const handleNewScan = () => { setScanResult(null); setAppState('repo_selection'); };
+                const handleGenerateStrategicSummary = async () => { setIsSummaryModalOpen(true); setIsLoadingSummary(true); setSummaryError(''); setStrategicSummary(''); try { const r = await fetch(`${BACKEND_URL}/api/strategic-summary`, { credentials: 'include' }); if (!r.ok) { const ed = await r.json().catch(() => ({})); throw new Error(ed.detail || "Failed to generate summary."); } const d = await r.json(); setStrategicSummary(d.summary); } catch (err) { setSummaryError(err.message); } finally { setIsLoadingSummary(false); } };
                 const handleGenerateFix = async (issueIndex) => { const i = scanResult.syntaxIssues[issueIndex]; const ui = [...scanResult.syntaxIssues]; ui[issueIndex] = { ...i, isLoadingSuggestion: true }; setScanResult({ ...scanResult, syntaxIssues: ui }); try { const r = await fetch(`${BACKEND_URL}/api/generate-fix`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code_snippet: i.code_snippet, issue_type: i.type, file_path: i.file, line: i.line }), credentials: 'include' }); if (!r.ok) { const ed = await r.json(); throw new Error(ed.detail || "AI fail."); } const d = await r.json(); const fi = [...scanResult.syntaxIssues]; fi[issueIndex] = { ...i, suggestion: d.suggestion, isLoadingSuggestion: false }; setScanResult({ ...scanResult, syntaxIssues: fi }); } catch (err) { const fi = [...scanResult.syntaxIssues]; fi[issueIndex] = { ...i, suggestion: `Error: ${err.message}`, isLoadingSuggestion: false }; setScanResult({ ...scanResult, syntaxIssues: fi }); } };
-                const renderMainContent = () => { if (error) { return <div className="fc items-center justify-center h-full tc"><ServerCrash className="w-12 h-12 text-red-400" /><h1 className="t2xl fb text-white mt-6">Error</h1><p className="mt-1 text-gray-400 max-w-md">{error}</p></div>; } switch (appState) { case 'repo_selection': return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} />; case 'scanning': return <ScanningView />; case 'report': return <ReportView result={scanResult} onNewScan={handleNewScan} onGenerateFix={handleGenerateFix} />; default: return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} />; } };
-                return <div className="py-8 h-full flex flex-col"><header className="flex justify-between items-center flex-shrink-0"><h1 className="t2xl fb text-white"><span className="text-emerald-400">Py</span>Upgrade</h1><button onClick={onLogout} className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><LogOut className="w-4 h-4 mr-2" />Logout</button></header><main className="flex-grow mt-4 overflow-y-auto">{renderMainContent()}</main></div>;
+                const renderMainContent = () => { if (error) { return <div className="fc items-center justify-center h-full tc"><ServerCrash className="w-12 h-12 text-red-400" /><h1 className="t2xl fb text-white mt-6">Error</h1><p className="mt-1 text-gray-400 max-w-md">{error}</p></div>; } switch (appState) { case 'repo_selection': return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} onGenerateSummary={handleGenerateStrategicSummary} />; case 'scanning': return <ScanningView />; case 'report': return <ReportView result={scanResult} onNewScan={handleNewScan} onGenerateFix={handleGenerateFix} />; default: return <RepoSelectionView repos={repos} isLoading={isLoadingRepos} onScan={handleScan} onGenerateSummary={handleGenerateStrategicSummary} />; } };
+                return <div className="py-8 h-full flex flex-col"><header className="flex justify-between items-center flex-shrink-0"><h1 className="t2xl fb text-white"><span className="text-emerald-400">Py</span>Upgrade</h1><button onClick={onLogout} className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"><LogOut className="w-4 h-4 mr-2" />Logout</button></header><main className="flex-grow mt-4 overflow-y-auto">{renderMainContent()}</main>
+                {isSummaryModalOpen && (
+                    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+                        <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full border border-gray-700 max-h-[80vh] overflow-y-auto">
+                            <div className="flex justify-between items-start mb-4">
+                                <h2 className="text-xl font-bold text-white flex items-center"><Sparkles className="w-5 h-5 mr-2 text-emerald-400" />Strategic Technical Debt Summary</h2>
+                                <button onClick={() => setIsSummaryModalOpen(false)} className="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+                            </div>
+                            {isLoadingSummary ? (
+                                <div className="flex flex-col items-center justify-center py-12">
+                                    <Loader2 className="w-10 h-10 animate-spin text-emerald-400" />
+                                    <p className="mt-4 text-gray-400">Analyzing your scan history...</p>
+                                </div>
+                            ) : summaryError ? (
+                                <p className="text-red-400">{summaryError}</p>
+                            ) : (
+                                <div>{renderMarkdown(strategicSummary)}</div>
+                            )}
+                            <div className="mt-6 text-right">
+                                <button onClick={() => setIsSummaryModalOpen(false)} className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                </div>;
             };
 
-            const RepoSelectionView = ({ repos, isLoading, onScan }) => {
+            const RepoSelectionView = ({ repos, isLoading, onScan, onGenerateSummary }) => {
                  // (Logic remains the same)
                 const [selectedRepo, setSelectedRepo] = useState(null);
                 useEffect(() => { if (repos && repos.length > 0 && !selectedRepo) { setSelectedRepo(repos[0].full_name); } }, [repos, selectedRepo]);
-                if (isLoading) { return <div className="fc items-center justify-center h-full tc"><Loader2 className="w-12 h-12 text-emerald-400 animate-spin" /><h1 className="t2xl fb text-white mt-6">Fetching...</h1></div>; }
-                if (repos.length === 0) { return <div className="fc items-center justify-center h-full tc"><FileCode className="w-12 h-12 text-gray-500" /><h1 className="t2xl fb text-white mt-6">No Python Repos Found</h1><p className="mt-1 text-gray-400 max-w-md">No Python repos in GitHub.</p></div>; }
-                return <div className="max-w-4xl mx-auto"> <h1 className="t3xl fb text-white">Select Repo</h1><p className="mt-2 text-gray-400">Choose repo to scan.</p><div className="mt-8 space-y-4 max-h-[60vh] overflow-y-auto pr-2">{repos.map(repo => ( <div key={repo.id} onClick={() => setSelectedRepo(repo.full_name)} className={`bg-gray-800/50 border ${selectedRepo === repo.full_name ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-gray-700'} p-4 rounded-lg cursor-pointer transition-all hover:border-emerald-600`}><div className="flex items-center"><input type="radio" name="repo-selection" checked={selectedRepo === repo.full_name} readOnly className="w-4 h-4 text-emerald-600 bg-gray-700 border-gray-600"/><div className="ml-4 flex-grow"><p className="font-semibold text-white flex items-center">{repo.owner.login} / <span className="font-bold">{repo.name}</span>{repo.private && <Lock className="w-3 h-3 ml-2 text-gray-400" />}</p><p className="text-sm text-gray-400">{repo.description}</p></div></div></div>))}</div><div className="mt-8 text-right"><button onClick={() => onScan(selectedRepo)} disabled={!selectedRepo} className="bg-emerald-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors disabled:bg-gray-600 flex items-center ml-auto">Scan Repo <ChevronRight className="w-5 h-5 ml-2" /></button></div></div>;
+                const strategicInsights = (
+                    <div className="bg-gray-800/50 border border-gray-700 p-6 rounded-xl mb-8">
+                        <h2 className="text-xl font-bold text-white flex items-center"><Sparkles className="w-5 h-5 mr-2 text-emerald-400"/> Strategic Insights</h2>
+                        <p className="text-gray-400 mt-2">Analyze all your past scan reports to get a high-level executive summary of your organization's technical debt.</p>
+                        <button onClick={onGenerateSummary} className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">Generate Executive Summary</button>
+                    </div>
+                );
+                if (isLoading) { return <div className="max-w-4xl mx-auto">{strategicInsights}<div className="fc items-center justify-center h-full tc"><Loader2 className="w-12 h-12 text-emerald-400 animate-spin" /><h1 className="t2xl fb text-white mt-6">Fetching...</h1></div></div>; }
+                if (repos.length === 0) { return <div className="max-w-4xl mx-auto">{strategicInsights}<div className="fc items-center justify-center h-full tc"><FileCode className="w-12 h-12 text-gray-500" /><h1 className="t2xl fb text-white mt-6">No Python Repos Found</h1><p className="mt-1 text-gray-400 max-w-md">No Python repos in GitHub.</p></div></div>; }
+                return <div className="max-w-4xl mx-auto">{strategicInsights}<h1 className="t3xl fb text-white">Select Repo</h1><p className="mt-2 text-gray-400">Choose repo to scan.</p><div className="mt-8 space-y-4 max-h-[60vh] overflow-y-auto pr-2">{repos.map(repo => ( <div key={repo.id} onClick={() => setSelectedRepo(repo.full_name)} className={`bg-gray-800/50 border ${selectedRepo === repo.full_name ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-gray-700'} p-4 rounded-lg cursor-pointer transition-all hover:border-emerald-600`}><div className="flex items-center"><input type="radio" name="repo-selection" checked={selectedRepo === repo.full_name} readOnly className="w-4 h-4 text-emerald-600 bg-gray-700 border-gray-600"/><div className="ml-4 flex-grow"><p className="font-semibold text-white flex items-center">{repo.owner.login} / <span className="font-bold">{repo.name}</span>{repo.private && <Lock className="w-3 h-3 ml-2 text-gray-400" />}</p><p className="text-sm text-gray-400">{repo.description}</p></div></div></div>))}</div><div className="mt-8 text-right"><button onClick={() => onScan(selectedRepo)} disabled={!selectedRepo} className="bg-emerald-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors disabled:bg-gray-600 flex items-center ml-auto">Scan Repo <ChevronRight className="w-5 h-5 ml-2" /></button></div></div>;
             };
 
             const ScanningView = () => ( <div className="fc items-center justify-center h-full tc"><Loader2 className="w-16 h-16 text-emerald-400 animate-spin" /><h1 className="t3xl fb text-white mt-8">Scanning...</h1><p className="mt-2 text-gray-400 max-w-md">Scan started. We'll update when ready.</p></div> );
